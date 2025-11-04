@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LoL Scoreboard Overlay</title>
+    <style>
+      body {
+        margin: 0;
+        background: #0f172a;
+        color: #e2e8f0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      header {
+        padding: 16px 24px;
+        background: rgba(15, 23, 42, 0.85);
+        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      header h1 {
+        font-size: 20px;
+        margin: 0;
+        font-weight: 600;
+      }
+
+      header span {
+        font-size: 13px;
+        color: #94a3b8;
+      }
+
+      #scoreboard {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 16px;
+        padding: 24px;
+      }
+
+      .team {
+        background: rgba(30, 41, 59, 0.85);
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        border-radius: 12px;
+        padding: 16px;
+      }
+
+      .team h2 {
+        margin: 0 0 12px 0;
+        font-size: 16px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #cbd5f5;
+      }
+
+      .player {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        padding: 14px;
+        border-radius: 12px;
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid rgba(148, 163, 184, 0.15);
+        margin-bottom: 12px;
+        text-align: center;
+      }
+
+      .player:last-child {
+        margin-bottom: 0;
+      }
+
+      .player-meta {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .player-meta .champion {
+        font-weight: 700;
+        font-size: 16px;
+      }
+
+      .player-meta .summoner {
+        font-size: 13px;
+        color: #94a3b8;
+      }
+
+      .items {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+        min-height: 48px;
+      }
+
+      .champion-frame {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .champion-art {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 16px;
+        border: 2px solid rgba(148, 163, 184, 0.3);
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.4);
+      }
+
+      .champion-placeholder {
+        width: 100%;
+        height: 100%;
+        border-radius: 16px;
+        background: rgba(148, 163, 184, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: #1e293b;
+      }
+
+      .champion-level {
+        position: absolute;
+        bottom: -6px;
+        right: -6px;
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        background: #38bdf8;
+        color: #0f172a;
+        font-weight: 700;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid rgba(15, 23, 42, 0.9);
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.6);
+      }
+
+      .item-icon {
+        position: relative;
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        background: rgba(15, 23, 42, 0.6);
+      }
+
+      .item-icon img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+      }
+
+      .item-stack {
+        position: absolute;
+        bottom: 2px;
+        right: 4px;
+        font-size: 11px;
+        font-weight: 700;
+        color: #f8fafc;
+        text-shadow: 0 0 4px rgba(15, 23, 42, 0.8);
+      }
+
+      .item-empty {
+        font-size: 12px;
+        color: #64748b;
+        padding: 6px 12px;
+        border-radius: 8px;
+        border: 1px dashed rgba(148, 163, 184, 0.3);
+      }
+
+      .player-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+        gap: 6px;
+        width: 100%;
+      }
+
+      .stat {
+        background: rgba(30, 41, 59, 0.85);
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        border-radius: 8px;
+        padding: 6px 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .stat-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #94a3b8;
+      }
+
+      .stat-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: #f8fafc;
+      }
+
+      .item-pill {
+        padding: 4px 8px;
+        border-radius: 8px;
+        background: rgba(79, 70, 229, 0.2);
+        border: 1px solid rgba(79, 70, 229, 0.35);
+        font-size: 12px;
+        line-height: 1.3;
+      }
+
+      #status {
+        padding: 0 24px 16px 24px;
+        font-size: 13px;
+        color: #94a3b8;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>League of Legends Scoreboard</h1>
+      <span>Stay on top of every summoner's build in real time.</span>
+    </header>
+    <p id="status">Waiting for live match data…</p>
+    <main id="scoreboard">
+      <section class="team" data-team="ORDER">
+        <h2>Blue Side</h2>
+        <div class="players"></div>
+      </section>
+      <section class="team" data-team="CHAOS">
+        <h2>Red Side</h2>
+        <div class="players"></div>
+      </section>
+    </main>
+    <script defer src="renderer.js"></script>
+  </body>
+</html>
